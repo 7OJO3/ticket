@@ -93,18 +93,24 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.isModalSubmit()) {
         if (interaction.customId === 'close_modal') {
             const reason = interaction.fields.getTextInput('reason');
+            
+            // رد مبدئي لتأكيد الاستلام
             await interaction.reply({ content: "جاري إغلاق التذكرة...", ephemeral: true });
             
             try {
-                // البحث عن العضو بناءً على اسم القناة
-                const member = interaction.guild.members.cache.find(m => m.user.username === interaction.channel.name.replace('ticket-', ''));
-                if (member) {
-                    // إرسال الرسالة بالخاص مع الرابط في النهاية كما طلبت
-                    await member.send(`تم إغلاق تذكرتك بواسطة الإداري ${interaction.user}\nالسبب: ${reason}\n\n${CLOSE_IMAGE}`);
+                // الطريقة الأدق لجلب العضو هي البحث في صلاحيات القناة (PermissionOverwrites)
+                const channel = interaction.channel;
+                const memberPermission = channel.permissionOverwrites.cache.find(p => p.type === 1 && p.id !== interaction.guild.id && p.id !== ADMIN_ROLE_ID);
+                
+                if (memberPermission) {
+                    const member = await interaction.guild.members.fetch(memberPermission.id).catch(() => null);
+                    
+                    if (member) {
+                        await member.send(`تم إغلاق تذكرتك بواسطة الإداري ${interaction.user}\nالسبب: ${reason}\n\n${CLOSE_IMAGE}`).catch(() => {});
+                    }
                 }
             } catch (e) {
-                // إذا كان الخاص مقفلاً يتم تجاهل الخطأ ويكمل البوت الحذف
-                console.log("الخاص مغلق، لا يمكن إرسال الرسالة.");
+                console.error("خطأ في إرسال الخاص:", e);
             }
             
             // حذف التذكرة بعد 5 ثوانٍ
