@@ -91,18 +91,27 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (interaction.isModalSubmit()) {
-        const reason = interaction.fields.getTextInput('reason');
-        const user = interaction.channel.topic; // افتراض حفظ اليوزر في التوبيك أو يمكنك استخدام قاعدة بيانات
-        await interaction.reply("جاري إغلاق التذكرة...");
-        
-        try {
-            const member = await interaction.guild.members.fetch(interaction.channel.name.split('-')[1] || "");
-            if(member) {
-                await member.send(`تم إغلاق تذكرتك بواسطة الإداري ${interaction.user}\nالسبب: ${reason}\n${CLOSE_IMAGE}`);
+        if (interaction.customId === 'close_modal') {
+            const reason = interaction.fields.getTextInput('reason');
+            await interaction.reply({ content: "جاري إغلاق التذكرة...", ephemeral: true });
+            
+            try {
+                // البحث عن العضو بناءً على اسم القناة
+                const member = interaction.guild.members.cache.find(m => m.user.username === interaction.channel.name.replace('ticket-', ''));
+                if (member) {
+                    // إرسال الرسالة بالخاص مع الرابط في النهاية كما طلبت
+                    await member.send(`تم إغلاق تذكرتك بواسطة الإداري ${interaction.user}\nالسبب: ${reason}\n\n${CLOSE_IMAGE}`);
+                }
+            } catch (e) {
+                // إذا كان الخاص مقفلاً يتم تجاهل الخطأ ويكمل البوت الحذف
+                console.log("الخاص مغلق، لا يمكن إرسال الرسالة.");
             }
-        } catch (e) {}
-        
-        setTimeout(() => interaction.channel.delete(), 5000);
+            
+            // حذف التذكرة بعد 5 ثوانٍ
+            setTimeout(() => {
+                if (interaction.channel) interaction.channel.delete().catch(console.error);
+            }, 5000);
+        }
     }
 });
 
