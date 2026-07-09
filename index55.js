@@ -6,7 +6,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 const TICKET_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1524400406426423387/SPOILER_IMG_8689.jpg?ex=6a50ed82&is=6a4f9c02&hm=4ad77fce13d73b8fc556383fbd86830cf4bbecd66a2a9cf1fdafce7217a038bd";
 const TICKET_THUMBNAIL = "https://cdn.discordapp.com/attachments/1501300022808023351/1524889392873738250/IMG_8683.png?ex=6a51636a&is=6a5011ea&hm=9ef78deff6da2d8f03e6b748313ce3c2b4de86df34f50350156ca677792cf3fe";
 const CLOSE_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1524400406426423387/SPOILER_IMG_8689.jpg?ex=6a50ed82&is=6a4f9c02&hm=4ad77fce13d73b8fc556383fbd86830cf4bbecd66a2a9cf1fdafce7217a038bd";
-const ADMIN_ROLE_ID = "<@&1009292040737149018>";
+const ADMIN_ROLE_ID = "1009292040737149018";
 
 client.on('messageCreate', async (message) => {
     if (message.content === '!تكت') {
