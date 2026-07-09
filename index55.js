@@ -11,8 +11,8 @@ const ADMIN_ROLE_ID = "<@&1009292040737149018>";
 client.on('messageCreate', async (message) => {
     if (message.content === '!تكت') {
         const embed = new EmbedBuilder()
-            .setTitle("نظام التذاكر")
-            .setDescription("يرجى اختيار نوع التذكرة المناسب:")
+            .setTitle("مرحبا بك في قسم الدعم الفني")
+            .setDescription("اذا كنت تواجه مشكله,تحتاج الى مساعدة,او ترغب بتقديم بلاغ, افتح تذكره لكن تستعبط بشوتك:")
             .setImage(TICKET_IMAGE)
             .setColor(161E31);
 
