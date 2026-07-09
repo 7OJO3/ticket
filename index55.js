@@ -61,7 +61,7 @@ client.on('interactionCreate', async (interaction) => {
             .setDescription(`مرحباً ${interaction.user}، انتظر أحد الإداريين لاستلام تذكرتك.`)
             .setThumbnail(TICKET_THUMBNAIL)
             .setImage(TICKET_IMAGE)
-            .setColor(0x00FF00);
+            .setColor(0x161E31);
 
         const buttons = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('claim').setLabel('استلام').setStyle(ButtonStyle.Success),
