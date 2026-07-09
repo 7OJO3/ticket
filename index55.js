@@ -14,7 +14,7 @@ client.on('messageCreate', async (message) => {
             .setTitle("نظام التذاكر")
             .setDescription("يرجى اختيار نوع التذكرة المناسب:")
             .setImage(TICKET_IMAGE)
-            .setColor(0x0099FF);
+            .setColor(161E31);
 
         const row1 = new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder()
