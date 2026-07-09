@@ -2,9 +2,9 @@
   "name": "ticket-bot",
   "version": "1.0.0",
   "description": "Professional Ticket Bot",
-  "main": "index.js",
+  "main": "index55.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index55.js"
   },
   "dependencies": {
     "discord.js": "^14.14.1"
