@@ -3,9 +3,9 @@ const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectM
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers] });
 
 // --- ضع روابطك هنا ---
-const TICKET_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1524926219483873290/IMG_8800.jpg?ex=6a5185b6&is=6a503436&hm=d72fd3a947f539bfc77d746c149c4f0c0c22aebfe24d8ee864a96ee3538d704b&";
-const TICKET_THUMBNAIL = "https://cdn.discordapp.com/attachments/1501300022808023351/1524889392873738250/IMG_8683.png?ex=6a51636a&is=6a5011ea&hm=9ef78deff6da2d8f03e6b748313ce3c2b4de86df34f50350156ca677792cf3fe";
-const CLOSE_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1524926219483873290/IMG_8800.jpg?ex=6a5185b6&is=6a503436&hm=d72fd3a947f539bfc77d746c149c4f0c0c22aebfe24d8ee864a96ee3538d704b&";
+const TICKET_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1526270984263307325/IMG_9229.jpg?ex=6a566a1f&is=6a55189f&hm=e75b698e5b9c01da1b351707663c3f55fd26b8ea627494e55f07cbcc51e03613&";
+const TICKET_THUMBNAIL = "https://cdn.discordapp.com/attachments/1501300022808023351/1526270984263307325/IMG_9229.jpg?ex=6a566a1f&is=6a55189f&hm=e75b698e5b9c01da1b351707663c3f55fd26b8ea627494e55f07cbcc51e03613&";
+const CLOSE_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1526270984263307325/IMG_9229.jpg?ex=6a566a1f&is=6a55189f&hm=e75b698e5b9c01da1b351707663c3f55fd26b8ea627494e55f07cbcc51e03613&";
 const ADMIN_ROLE_ID = "1009292040737149018";
 
 client.on('messageCreate', async (message) => {
