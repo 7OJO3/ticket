@@ -2,7 +2,6 @@ const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectM
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers] });
 
-// --- ضع روابطك هنا ---
 const TICKET_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1526270984263307325/IMG_9229.jpg?ex=6a566a1f&is=6a55189f&hm=e75b698e5b9c01da1b351707663c3f55fd26b8ea627494e55f07cbcc51e03613&";
 const TICKET_THUMBNAIL = "https://cdn.discordapp.com/attachments/1501300022808023351/1526270984263307325/IMG_9229.jpg?ex=6a566a1f&is=6a55189f&hm=e75b698e5b9c01da1b351707663c3f55fd26b8ea627494e55f07cbcc51e03613&";
 const CLOSE_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1526270984263307325/IMG_9229.jpg?ex=6a566a1f&is=6a55189f&hm=e75b698e5b9c01da1b351707663c3f55fd26b8ea627494e55f07cbcc51e03613&";
@@ -61,7 +60,7 @@ client.on('interactionCreate', async (interaction) => {
             .setDescription(`مرحباً ${interaction.user}، انتظر أحد الإداريين لاستلام تذكرتك.`)
             .setThumbnail(TICKET_THUMBNAIL)
             .setImage(TICKET_IMAGE)
-            .setColor(0x161E31);
+            .setColor(0x000000);
 
         const buttons = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('claim').setLabel('استلام').setStyle(ButtonStyle.Success),
@@ -70,16 +69,12 @@ client.on('interactionCreate', async (interaction) => {
 
         await channel.send({ content: `${interaction.user} | <@&${ADMIN_ROLE_ID}>`, embeds: [embed], components: [buttons] });
         await interaction.reply({ content: `تم فتح تذكرتك: ${channel}`, ephemeral: true });
-        
-        try {
-            await interaction.user.send(`تم فتح تذكرتك، الرجاء التوجه إلى الروم: ${channel}`);
-        } catch (e) { /* الخاص مغلق */ }
     }
 
     if (interaction.isButton()) {
         if (interaction.customId === 'claim') {
             if (!interaction.member.roles.cache.has(ADMIN_ROLE_ID)) return interaction.reply({ content: "للإداريين فقط!", ephemeral: true });
-            await interaction.reply(`تم استلام التكت بواسطة الإداري ${interaction.user}`);
+            await interaction.reply({ content: `تم استلام التكت بواسطة الإداري ${interaction.user}`, ephemeral: true });
         }
 
         if (interaction.customId === 'close') {
@@ -92,32 +87,25 @@ client.on('interactionCreate', async (interaction) => {
 
     if (interaction.isModalSubmit()) {
         if (interaction.customId === 'close_modal') {
-            const reason = interaction.fields.getTextInput('reason');
+            // التعديل الجوهري: الرد فوراً وبدون أي شروط
+            await interaction.reply({ content: "جاري إغلاق التذكرة...", ephemeral: true });
             
-            // استخدام deferReply لتجنب خطأ الرد المكرر
-            await interaction.deferReply({ ephemeral: true });
+            const reason = interaction.fields.getTextInput('reason');
+            const channel = interaction.channel;
             
             try {
-                const channel = interaction.channel;
                 const memberPermission = channel.permissionOverwrites.cache.find(p => p.type === 1 && p.id !== interaction.guild.id && p.id !== ADMIN_ROLE_ID);
-                
                 if (memberPermission) {
                     const member = await interaction.guild.members.fetch(memberPermission.id).catch(() => null);
-                    
                     if (member) {
                         await member.send(`تم إغلاق تذكرتك بواسطة الإداري ${interaction.user}\nالسبب: ${reason}\n\n${CLOSE_IMAGE}`).catch(() => {});
                     }
                 }
-            } catch (e) {
-                console.error("خطأ في إرسال الخاص:", e);
-            }
+            } catch (e) { console.error(e); }
             
-            await interaction.editReply({ content: "جاري إغلاق التذكرة..." });
-
-            // حذف التذكرة بعد 5 ثوانٍ
             setTimeout(() => {
-                if (interaction.channel) interaction.channel.delete().catch(console.error);
-            }, 5000);
+                if (channel) channel.delete().catch(console.error);
+            }, 3000);
         }
     }
 });
