@@ -14,7 +14,7 @@ client.on('messageCreate', async (message) => {
             .setTitle("مرحبا بك في قسم الدعم الفني")
             .setDescription("اذا كنت تواجه مشكله,تحتاج الى مساعدة,او ترغب بتقديم بلاغ, افتح تذكره لكن تستعبط بشوتك:")
             .setImage(TICKET_IMAGE)
-            .setColor(0x161E31);
+            .setColor(0x2F3136);
 
         const row1 = new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder()
