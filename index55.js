@@ -73,13 +73,13 @@ client.on('interactionCreate', async (interaction) => {
         
         try {
             await interaction.user.send(`تم فتح تذكرتك، الرجاء التوجه إلى الروم: ${channel}`);
-        } catch (e) { /* الخاص مغلق */ }
+        } catch (e) { }
     }
 
     if (interaction.isButton()) {
         if (interaction.customId === 'claim') {
             if (!interaction.member.roles.cache.has(ADMIN_ROLE_ID)) return interaction.reply({ content: "للإداريين فقط!", ephemeral: true });
-            await interaction.reply(`تم استلام التكت بواسطة الإداري ${interaction.user}`);
+            await interaction.reply({ content: `تم استلام التكت بواسطة الإداري ${interaction.user}`, ephemeral: true });
         }
 
         if (interaction.customId === 'close') {
@@ -94,7 +94,7 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.customId === 'close_modal') {
             const reason = interaction.fields.getTextInput('reason');
             
-            // استخدام deferReply ليتم قبول الطلب فوراً بدون خطأ "Something went wrong"
+            // رد فوري لتأكيد الاستلام وتفادي خطأ Something went wrong
             await interaction.deferReply({ ephemeral: true });
             
             try {
@@ -103,29 +103,26 @@ client.on('interactionCreate', async (interaction) => {
                 
                 if (memberPermission) {
                     const member = await interaction.guild.members.fetch(memberPermission.id).catch(() => null);
-                    
                     if (member) {
-                        // إرسال رسالة الإغلاق مع الصور
                         const closeEmbed = new EmbedBuilder()
                             .setTitle("تم إغلاق التذكرة")
                             .setDescription(`تم إغلاق تذكرتك بواسطة الإداري ${interaction.user}\nالسبب: ${reason}`)
                             .setImage(CLOSE_IMAGE)
                             .setThumbnail(TICKET_THUMBNAIL)
                             .setColor(0x161E31);
-                            
                         await member.send({ embeds: [closeEmbed] }).catch(() => {});
                     }
                 }
-            } catch (e) {
-                console.error("خطأ:", e);
-            }
+            } catch (e) { console.error("خطأ:", e); }
             
             await interaction.editReply({ content: "تم إغلاق التذكرة بنجاح، سيتم حذف الروم الآن." });
             
-            // حذف التذكرة بعد 5 ثوانٍ
-            setTimeout(() => {
-                if (interaction.channel) interaction.channel.delete().catch(console.error);
-            }, 5000);
+            // تأخير بسيط لضمان تنفيذ عملية الـ EditReply قبل الحذف
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel) await interaction.channel.delete();
+                } catch (err) { console.error("فشل حذف القناة:", err); }
+            }, 3000);
         }
     }
 });
