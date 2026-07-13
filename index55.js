@@ -94,11 +94,10 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.customId === 'close_modal') {
             const reason = interaction.fields.getTextInput('reason');
             
-            // رد مبدئي لتأكيد الاستلام
-            await interaction.reply({ content: "جاري إغلاق التذكرة...", ephemeral: true });
+            // استخدام deferReply لتجنب خطأ الرد المكرر
+            await interaction.deferReply({ ephemeral: true });
             
             try {
-                // الطريقة الأدق لجلب العضو هي البحث في صلاحيات القناة (PermissionOverwrites)
                 const channel = interaction.channel;
                 const memberPermission = channel.permissionOverwrites.cache.find(p => p.type === 1 && p.id !== interaction.guild.id && p.id !== ADMIN_ROLE_ID);
                 
@@ -113,6 +112,8 @@ client.on('interactionCreate', async (interaction) => {
                 console.error("خطأ في إرسال الخاص:", e);
             }
             
+            await interaction.editReply({ content: "جاري إغلاق التذكرة..." });
+
             // حذف التذكرة بعد 5 ثوانٍ
             setTimeout(() => {
                 if (interaction.channel) interaction.channel.delete().catch(console.error);
