@@ -2,7 +2,7 @@ const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectM
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers] });
 
-// --- ضع روابطك هنا ---
+// --- روابط الصور ---
 const TICKET_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1526270984263307325/IMG_9229.jpg?ex=6a566a1f&is=6a55189f&hm=e75b698e5b9c01da1b351707663c3f55fd26b8ea627494e55f07cbcc51e03613&";
 const TICKET_THUMBNAIL = "https://cdn.discordapp.com/attachments/1501300022808023351/1526270984263307325/IMG_9229.jpg?ex=6a566a1f&is=6a55189f&hm=e75b698e5b9c01da1b351707663c3f55fd26b8ea627494e55f07cbcc51e03613&";
 const CLOSE_IMAGE = "https://cdn.discordapp.com/attachments/1501300022808023351/1526270984263307325/IMG_9229.jpg?ex=6a566a1f&is=6a55189f&hm=e75b698e5b9c01da1b351707663c3f55fd26b8ea627494e55f07cbcc51e03613&";
@@ -70,60 +70,38 @@ client.on('interactionCreate', async (interaction) => {
 
         await channel.send({ content: `${interaction.user} | <@&${ADMIN_ROLE_ID}>`, embeds: [embed], components: [buttons] });
         await interaction.reply({ content: `تم فتح تذكرتك: ${channel}`, ephemeral: true });
-        
+        try { await interaction.user.send(`تم فتح تذكرتك، الرجاء التوجه إلى الروم: ${channel}`); } catch (e) {}
+    }
+
+    if (interaction.isButton() && interaction.customId === 'close') {
+        if (!interaction.member.roles.cache.has(ADMIN_ROLE_ID)) return interaction.reply({ content: "للإداريين فقط!", ephemeral: true });
+        const modal = new ModalBuilder().setCustomId('close_modal').setTitle('سبب الإغلاق');
+        modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('reason').setLabel('اكتب سبب الإغلاق').setStyle(TextInputStyle.Paragraph).setRequired(true)));
+        await interaction.showModal(modal);
+    }
+
+    if (interaction.isModalSubmit() && interaction.customId === 'close_modal') {
+        const reason = interaction.fields.getTextInput('reason');
+        await interaction.deferReply({ ephemeral: true });
+
         try {
-            await interaction.user.send(`تم فتح تذكرتك، الرجاء التوجه إلى الروم: ${channel}`);
-        } catch (e) { }
-    }
-
-    if (interaction.isButton()) {
-        if (interaction.customId === 'claim') {
-            if (!interaction.member.roles.cache.has(ADMIN_ROLE_ID)) return interaction.reply({ content: "للإداريين فقط!", ephemeral: true });
-            await interaction.reply({ content: `تم استلام التكت بواسطة الإداري ${interaction.user}`, ephemeral: true });
-        }
-
-        if (interaction.customId === 'close') {
-            if (!interaction.member.roles.cache.has(ADMIN_ROLE_ID)) return interaction.reply({ content: "للإداريين فقط!", ephemeral: true });
-            const modal = new ModalBuilder().setCustomId('close_modal').setTitle('سبب الإغلاق');
-            modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('reason').setLabel('اكتب سبب الإغلاق').setStyle(TextInputStyle.Paragraph).setRequired(true)));
-            await interaction.showModal(modal);
-        }
-    }
-
-    if (interaction.isModalSubmit()) {
-        if (interaction.customId === 'close_modal') {
-            const reason = interaction.fields.getTextInput('reason');
-            
-            // رد فوري لتأكيد الاستلام وتفادي خطأ Something went wrong
-            await interaction.deferReply({ ephemeral: true });
-            
-            try {
-                const channel = interaction.channel;
-                const memberPermission = channel.permissionOverwrites.cache.find(p => p.type === 1 && p.id !== interaction.guild.id && p.id !== ADMIN_ROLE_ID);
-                
-                if (memberPermission) {
-                    const member = await interaction.guild.members.fetch(memberPermission.id).catch(() => null);
-                    if (member) {
-                        const closeEmbed = new EmbedBuilder()
-                            .setTitle("تم إغلاق التذكرة")
-                            .setDescription(`تم إغلاق تذكرتك بواسطة الإداري ${interaction.user}\nالسبب: ${reason}`)
-                            .setImage(CLOSE_IMAGE)
-                            .setThumbnail(TICKET_THUMBNAIL)
-                            .setColor(0x161E31);
-                        await member.send({ embeds: [closeEmbed] }).catch(() => {});
-                    }
+            const memberPermission = interaction.channel.permissionOverwrites.cache.find(p => p.type === 1 && p.id !== interaction.guild.id && p.id !== ADMIN_ROLE_ID);
+            if (memberPermission) {
+                const member = await interaction.guild.members.fetch(memberPermission.id).catch(() => null);
+                if (member) {
+                    const closeEmbed = new EmbedBuilder()
+                        .setTitle("تم إغلاق التذكرة")
+                        .setDescription(`تم إغلاق تذكرتك بواسطة الإداري ${interaction.user}\nالسبب: ${reason}`)
+                        .setImage(CLOSE_IMAGE)
+                        .setThumbnail(TICKET_THUMBNAIL)
+                        .setColor(0x161E31);
+                    await member.send({ embeds: [closeEmbed] }).catch(() => {});
                 }
-            } catch (e) { console.error("خطأ:", e); }
-            
-            await interaction.editReply({ content: "تم إغلاق التذكرة بنجاح، سيتم حذف الروم الآن." });
-            
-            // تأخير بسيط لضمان تنفيذ عملية الـ EditReply قبل الحذف
-            setTimeout(async () => {
-                try {
-                    if (interaction.channel) await interaction.channel.delete();
-                } catch (err) { console.error("فشل حذف القناة:", err); }
-            }, 3000);
-        }
+            }
+        } catch (e) { console.error(e); }
+
+        await interaction.editReply({ content: "سيتم إغلاق وحذف التذكرة بعد 5 ثوانٍ." });
+        setTimeout(() => interaction.channel.delete().catch(console.error), 5000);
     }
 });
 
